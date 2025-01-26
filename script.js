@@ -4,6 +4,7 @@ const imageInput = document.getElementById('imageInput');
 const pixelSizeInput = document.getElementById('pixelSize');
 const pixelSizeValue = document.getElementById('pixelSizeValue');
 const sliderControls = document.getElementById('sliderControls');
+const downloadBtn = document.getElementById('downloadBtn');
 let originalImage = null;
 let debounceTimer;
 
@@ -13,7 +14,8 @@ console.log('Elements found:', {
     imageInput: !!imageInput,
     pixelSizeInput: !!pixelSizeInput,
     pixelSizeValue: !!pixelSizeValue,
-    sliderControls: !!sliderControls
+    sliderControls: !!sliderControls,
+    downloadBtn: !!downloadBtn
 });
 
 imageInput.addEventListener('change', function(e) {
@@ -32,8 +34,9 @@ imageInput.addEventListener('change', function(e) {
         originalImage.onload = function() {
             canvas.width = originalImage.width;
             canvas.height = originalImage.height;
-            canvas.style.display = 'block'; // Show canvas
-            sliderControls.style.display = 'block'; // Show slider controls
+            canvas.style.display = 'block';
+            sliderControls.style.display = 'block';
+            downloadBtn.disabled = false;
             pixelateImage(parseInt(pixelSizeInput.value));
         };
         originalImage.onerror = function() {
@@ -110,4 +113,24 @@ function pixelateImage(pixelSize) {
     
     // Clean up
     tempCanvas.remove();
-} 
+}
+
+downloadBtn.addEventListener('click', function() {
+    // Create a temporary link
+    const link = document.createElement('a');
+    link.download = 'pixelated-image.png';
+    
+    // Convert the canvas to a blob
+    canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Clean up
+        URL.revokeObjectURL(url);
+    }, 'image/png');
+}); 
